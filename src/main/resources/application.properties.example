@@ -1,0 +1,23 @@
+spring.application.name=essarota
+
+# ===============================
+# Configurações do Banco de Dados (MySQL)
+# ===============================
+spring.datasource.url=jdbc:mysql://localhost:3306/essarota?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Sao_Paulo&allowPublicKeyRetrieval=true
+spring.datasource.username=seu_usuario_aqui
+spring.datasource.password=sua_senha_aqui
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# ===============================
+# Configurações do JPA / Hibernate
+# ===============================
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+
+# ===============================
+# Configurações do JWT
+# ===============================
+jwt.secret=sua_chave_secreta_com_pelo_menos_256_bits_aqui
+jwt.expiration-hours=24
