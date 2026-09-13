@@ -36,12 +36,12 @@ Especificação técnica do projeto de portfólio: cadastro de trajetos (ônibus
 
 ### Java — backend principal
 
-- API REST (Spring Boot)
-- Regras de negócio: cadastro de usuário, trajeto, linhas
+- API REST (Spring Boot) com autenticação stateless via JWT
+- Regras de negócio: cadastro e autenticação de usuário, trajeto, linhas
 - Cálculo de rota/tempo estimado (integração com OpenTripPlanner, que também é Java)
 - Monitor de status: compara status anterior x atual e decide quando notificar
 - Orquestração do disparo de notificações (WhatsApp via Twilio, push via FCM)
-- Persistência (PostgreSQL)
+- Persistência (MySQL / PostgreSQL)
 
 ### Python — microsserviço isolado (opcional, só se envolver LLM)
 
@@ -70,6 +70,8 @@ erDiagram
   USUARIO {
     uuid id PK
     string nome
+    string email UK
+    string senha
     string telefone_whatsapp
     string device_token
   }
@@ -108,7 +110,7 @@ erDiagram
 
 ### Descrição das entidades
 
-- **USUARIO** — quem usa o sistema; guarda contato de WhatsApp e/ou token de push
+- **USUARIO** — quem usa o sistema; possui credenciais (e-mail único e senha com hash BCrypt) para login via token JWT, além de contato de WhatsApp e/ou token de push para notificações
 - **TRAJETO** — um caminho que o usuário faz (origem → destino), com tempo estimado calculado
 - **LINHA** — uma linha de ônibus ou trem (campo `tipo` diferencia)
 - **TRAJETO_LINHA** — tabela associativa: um trajeto pode passar por várias linhas, em ordem (ex: ônibus até a estação, depois trem)
@@ -120,21 +122,24 @@ erDiagram
 ## 4. Arquitetura de pacotes (Java) — Clean Architecture / Hexagonal
 
 ```
-com.seudominio.transportealertas
+io.github.tinhascode.essarota
 ├── domain
 │   ├── model            # Entidades de domínio puras (Usuario, Trajeto, Linha, Alerta, Notificacao)
 │   ├── repository        # Interfaces (portas) — ex: UsuarioRepository, TrajetoRepository
-│   └── service            # Regras de negócio puras (ex: cálculo de mudança de status)
+│   ├── service            # Regras e serviços puros (PasswordService, TokenService, etc.)
+│   └── exception          # Exceções de negócio (UsuarioNaoEncontradoException, CredenciaisInvalidasException, etc.)
 ├── application
-│   ├── usecase           # Casos de uso (ex: CadastrarTrajetoUseCase, NotificarUsuarioUseCase)
-│   └── dto                # Objetos de transferência entre camadas
+│   ├── usecase           # Casos de uso (CriarUsuarioUseCase, AutenticarUsuarioUseCase, etc.)
+│   ├── dto                # Records imutáveis com validações (CriarUsuarioRequest, LoginRequest, etc.)
+│   └── mapper             # Mappers DTO <-> Domínio via MapStruct
 ├── infrastructure
-│   ├── persistence        # Implementação JPA dos repositórios (adaptadores)
-│   ├── web                 # Controllers REST (adaptadores de entrada)
+│   ├── persistence        # Implementação JPA (UsuarioEntity, SpringDataUsuarioRepository, Mappers)
+│   ├── security           # Autenticação JWT (SecurityConfig, JwtService, JwtAuthenticationFilter, PasswordServiceImpl)
+│   ├── web                 # Controllers REST (UsuarioController, AuthController) e GlobalExceptionHandler
 │   ├── notification        # Adaptadores WhatsApp (Twilio) e Push (FCM)
 │   ├── routing              # Integração com OpenTripPlanner
 │   └── monitoring           # Monitor de status (polling/scraping de fontes)
-└── config                  # Configuração Spring (beans, security, etc.)
+└── config                  # Configuração Spring (OpenApiConfig / Swagger, Beans, etc.)
 ```
 
 **Por que essa separação:** o `domain` não depende de nada externo (nem de Spring, nem de JPA) — é onde vive a regra de negócio pura. `application` orquestra casos de uso chamando as interfaces do domínio. `infrastructure` é a única camada que conhece detalhes técnicos (banco, HTTP, filas). Isso permite trocar Twilio por outro provedor de WhatsApp, ou Postgres por outro banco, sem tocar na regra de negócio.
@@ -195,8 +200,9 @@ Esse exemplo mostra: encapsulamento (lista imutável exposta via `List.copyOf`),
 
 ## 8. Fluxo principal (resumo)
 
-1. Usuário cadastra trajeto → `CadastrarTrajetoUseCase` chama o serviço de rotas (OpenTripPlanner) e persiste
-2. Monitor de status (rodando em loop) detecta mudança em uma `Linha` → gera um `Alerta`
-3. `NotificarUsuarioUseCase` busca todos os usuários cujo trajeto usa aquela linha
-4. Para cada usuário, escolhe o canal (`WhatsAppSender` ou `PushSender`) e envia a `Notificacao`
-5. Registro da notificação enviada é persistido para histórico/auditoria
+1. Usuário se cadastra (`POST /api/v1/usuarios`) com senha criptografada via BCrypt e realiza login (`POST /api/v1/auth/login`) para receber o token JWT. As rotas protegidas subsequentes exigem o cabeçalho `Authorization: Bearer <token>`
+2. Usuário cadastra trajeto → `CadastrarTrajetoUseCase` chama o serviço de rotas (OpenTripPlanner) e persiste
+3. Monitor de status (rodando em loop) detecta mudança em uma `Linha` → gera um `Alerta`
+4. `NotificarUsuarioUseCase` busca todos os usuários cujo trajeto usa aquela linha
+5. Para cada usuário, escolhe o canal (`WhatsAppSender` ou `PushSender`) e envia a `Notificacao`
+6. Registro da notificação enviada é persistido para histórico/auditoria
