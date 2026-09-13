@@ -85,4 +85,4 @@ Thumbs.db
 *.hprof
 hs_err_pid*
 replay_pid*
-docs/*
+docs/
