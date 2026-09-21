@@ -1,0 +1,363 @@
+{
+  "info": {
+    "_postman_id": "essarota-api-collection",
+    "name": "Essarota API",
+    "description": "Coleção completa de requisições da API Essarota (CRUD de Usuário, Autenticação JWT e CRUD de Trajeto).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var data = pm.response.json();",
+                  "    pm.collectionVariables.set('token', data.token);",
+                  "    pm.collectionVariables.set('usuarioId', data.usuarioId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"joao.silva@email.com\",\n  \"senha\": \"senhaSegura123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuários",
+      "item": [
+        {
+          "name": "Criar Usuário (Público)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var data = pm.response.json();",
+                  "    pm.collectionVariables.set('usuarioId', data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"João da Silva\",\n  \"email\": \"joao.silva@email.com\",\n  \"senha\": \"senhaSegura123\",\n  \"telefoneWhatsapp\": \"+5511999998888\",\n  \"deviceToken\": \"fcm_token_device_abc123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios"]
+            }
+          }
+        },
+        {
+          "name": "Listar Usuários (Requer JWT)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Usuário por ID (Requer JWT)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios/{{usuarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios", "{{usuarioId}}"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Usuário (Requer JWT)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"João da Silva Atualizado\",\n  \"email\": \"joao.silva@email.com\",\n  \"senha\": \"novaSenhaSegura456\",\n  \"telefoneWhatsapp\": \"+5511988887777\",\n  \"deviceToken\": \"fcm_token_device_novo456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios/{{usuarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios", "{{usuarioId}}"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Usuário (Requer JWT)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios/{{usuarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios", "{{usuarioId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trajetos",
+      "item": [
+        {
+          "name": "Criar Trajeto (Requer JWT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var data = pm.response.json();",
+                  "    pm.collectionVariables.set('trajetoId', data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origem\": \"Terminal Metrô Santana, São Paulo - SP\",\n  \"destino\": \"Avenida Paulista, 1000, São Paulo - SP\",\n  \"tempoEstimadoMinutos\": 45\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trajetos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "trajetos"]
+            }
+          }
+        },
+        {
+          "name": "Listar Trajetos do Usuário (Requer JWT)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trajetos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "trajetos"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Trajeto por ID (Requer JWT)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trajetos/{{trajetoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "trajetos", "{{trajetoId}}"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Trajeto (Requer JWT)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origem\": \"Terminal Metrô Santana, São Paulo - SP\",\n  \"destino\": \"Avenida Brigadeiro Faria Lima, 2000, São Paulo - SP\",\n  \"tempoEstimadoMinutos\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trajetos/{{trajetoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "trajetos", "{{trajetoId}}"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Trajeto (Requer JWT)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trajetos/{{trajetoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "trajetos", "{{trajetoId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "usuarioId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "trajetoId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Autenticação", description = "Endpoints para autenticação e obtenção de token JWT")
 public class AuthController {
 
+        private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+
         private final AutenticarUsuarioUseCase autenticarUsuarioUseCase;
 
         public AuthController(AutenticarUsuarioUseCase autenticarUsuarioUseCase) {
@@ -29,7 +33,7 @@ public class AuthController {
         }
 
         @PostMapping("/login")
-        @SecurityRequirements // Rota pública no Swagger (sem exigência de Bearer token)
+        @SecurityRequirements
         @Operation(summary = "Efetuar login", description = "Autentica um usuário existente a partir de e-mail e senha, retornando o token JWT para autorização das demais rotas.")
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Autenticado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))),
@@ -37,7 +41,9 @@ public class AuthController {
                         @ApiResponse(responseCode = "401", description = "Credenciais inválidas (e-mail ou senha incorretos)")
         })
         public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
+                log.info("Tentativa de login recebida para o email: {}", request.email());
                 LoginResponse response = autenticarUsuarioUseCase.executar(request);
+                log.info("Login realizado com sucesso para o email: {}. Token JWT gerado.", request.email());
                 return ResponseEntity.ok(response);
         }
 }

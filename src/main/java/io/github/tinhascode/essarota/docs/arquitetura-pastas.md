@@ -63,28 +63,32 @@ src/main/java/io/github/tinhascode/essarota/
 ├── EssarotaApplication.java             # Ponto de entrada da aplicação Spring Boot
 │
 ├── domain/                              # Camada 1: Domínio puro (sem dependência de Spring/JPA)
-│   ├── model/                           # Entidades ricas e imutáveis (ex: Usuario com nome, email, senha, etc.)
-│   ├── repository/                      # Interfaces/Portas de repositório (ex: UsuarioRepository)
-│   ├── exception/                       # Exceções de domínio (ex: DomainException, UsuarioNaoEncontradoException, CredenciaisInvalidasException)
-│   └── service/                         # Contratos de serviços de domínio (ex: PasswordService, TokenService)
+│   ├── model/                           # Entidades ricas e imutáveis (Usuario, Trajeto)
+│   ├── repository/                      # Interfaces/Portas de repositório (UsuarioRepository, TrajetoRepository)
+│   ├── exception/                       # Exceções de domínio (UsuarioNaoEncontradoException, TrajetoNaoEncontradoException, AcessoNegadoAoTrajetoException, etc.)
+│   └── service/                         # Contratos de serviços de domínio (PasswordService, TokenService, RouteCalculatorService)
 │
 ├── application/                         # Camada 2: Aplicação / Casos de Uso
-│   ├── usecase/                         # Casos de uso específicos (Criar, Buscar, Listar, Atualizar, Deletar, AutenticarUsuario)
-│   ├── dto/                             # Requests e Responses (records imutáveis: CriarUsuarioRequest, LoginRequest, etc.)
-│   └── mapper/                          # Mappers de DTO <-> Domain com MapStruct (ex: UsuarioDtoMapper)
+│   ├── usecase/                         # Casos de uso específicos por módulo
+│   │   ├── auth/                        # AutenticarUsuarioUseCase
+│   │   ├── usuarios/                    # Criar, Buscar, Listar, Atualizar, DeletarUsuarioUseCase
+│   │   └── trajetos/                    # Criar, Buscar, Listar, Atualizar, DeletarTrajetoUseCase
+│   ├── dto/                             # Requests e Responses (records imutáveis: usuarios, trajetos, auth)
+│   └── mapper/                          # Mappers de DTO <-> Domain com MapStruct (UsuarioDtoMapper, TrajetoDtoMapper)
 │
 ├── infrastructure/                      # Camada 3: Adaptadores técnicos externos
 │   ├── persistence/
-│   │   ├── entity/                      # Entidades JPA com @Entity (ex: UsuarioEntity)
-│   │   ├── repository/                  # Repositórios Spring Data JPA (ex: SpringDataUsuarioRepository)
-│   │   ├── mapper/                      # Mappers de Entity <-> Domain com MapStruct (ex: UsuarioEntityMapper)
-│   │   └── UsuarioRepositoryImpl.java   # Implementação concreta da porta do domínio
+│   │   ├── entity/                      # Entidades JPA com @Entity (UsuarioEntity, TrajetoEntity)
+│   │   ├── repository/                  # Repositórios Spring Data JPA (SpringDataUsuarioRepository, SpringDataTrajetoRepository)
+│   │   ├── mapper/                      # Mappers de Entity <-> Domain com MapStruct (UsuarioEntityMapper, TrajetoEntityMapper)
+│   │   ├── UsuarioRepositoryImpl.java   # Implementação concreta da porta UsuarioRepository
+│   │   └── TrajetoRepositoryImpl.java   # Implementação concreta da porta TrajetoRepository
 │   ├── security/                        # Segurança da aplicação (SecurityConfig, JwtService, JwtAuthenticationFilter, PasswordServiceImpl)
 │   ├── web/
-│   │   ├── controller/                  # Endpoints REST (UsuarioController, AuthController)
+│   │   ├── controller/                  # Endpoints REST (UsuarioController, AuthController, TrajetoController)
 │   │   └── exception/                   # GlobalExceptionHandler padronizado
 │   ├── notification/                    # Adaptadores de envio (Twilio, Push FCM)
-│   ├── routing/                         # Adaptadores OpenTripPlanner (GTFS)
+│   ├── routing/                         # Adaptador de cálculo de rotas (DefaultRouteCalculatorImpl / OpenTripPlanner)
 │   └── monitoring/                      # Monitor de status das linhas
 │
 ├── config/                              # Configurações do framework Spring (OpenApiConfig, etc.)
@@ -92,8 +96,8 @@ src/main/java/io/github/tinhascode/essarota/
 └── docs/                                # Documentação técnica e arquitetural
     ├── documentation-system.md          # Especificação técnica geral
     ├── arquitetura-pastas.md            # Este documento explicativo da arquitetura
-    ├── postman-requests.md              # Documentação com corpos JSON e rotas para Postman/Insomnia
-    └── essarota-postman-collection.json # Coleção pronta para importação direta no Postman
+    ├── swagger-url.md                   # URLs de acesso e instruções do Swagger UI
+    └── essarota-postman-collection.json # Coleção de requisições pronta para importação no Postman
 ```
 
 ---

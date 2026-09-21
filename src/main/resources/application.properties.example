@@ -21,3 +21,11 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 # ===============================
 jwt.secret=sua_chave_secreta_com_pelo_menos_256_bits_aqui
 jwt.expiration-hours=24
+
+# ===============================
+# Configurações de Logs (horario - level - classe - linha - log especifico)
+# ===============================
+logging.pattern.console=%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} - %clr(%-5level){highlight} - %clr(%logger{39}){cyan} - %clr(linha %line){yellow} - %msg%n
+logging.level.root=INFO
+logging.level.io.github.tinhascode.essarota=DEBUG
+

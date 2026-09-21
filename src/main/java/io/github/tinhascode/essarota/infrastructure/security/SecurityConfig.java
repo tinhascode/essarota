@@ -35,18 +35,14 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Rotas públicas do Swagger UI e OpenAPI Docs
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml")
                         .permitAll()
-                        // Rota para criar usuário (sem autenticação)
                         .requestMatchers(HttpMethod.POST, "/api/v1/usuarios").permitAll()
-                        // Rota para login (sem autenticação)
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-                        // Todas as demais rotas exigem token JWT
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
@@ -54,10 +50,10 @@ public class SecurityConfig {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.getWriter().write("""
                                     {
-                                      "status": 401,
-                                      "error": "Unauthorized",
-                                      "message": "Acesso negado. Token JWT ausente ou inválido.",
-                                      "path": "%s"
+                                    "status": 401,
+                                    "error": "Unauthorized",
+                                    "message": "Acesso negado. Token JWT ausente ou inválido.",
+                                    "path": "%s"
                                     }
                                     """.formatted(request.getRequestURI()));
                         }))

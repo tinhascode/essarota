@@ -18,6 +18,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +39,8 @@ import java.util.UUID;
 @RequestMapping("/api/v1/usuarios")
 @Tag(name = "Usuários", description = "Endpoints para gerenciamento e cadastro de usuários")
 public class UsuarioController {
+
+        private static final Logger log = LoggerFactory.getLogger(UsuarioController.class);
 
         private final CriarUsuarioUseCase criarUsuarioUseCase;
         private final BuscarUsuarioPorIdUseCase buscarUsuarioPorIdUseCase;
@@ -58,7 +62,7 @@ public class UsuarioController {
         }
 
         @PostMapping
-        @SecurityRequirements // Rota pública no Swagger (sem JWT)
+        @SecurityRequirements
         @Operation(summary = "Criar um novo usuário (Público)", description = "Cadastra um novo usuário no sistema com senha criptografada via BCrypt. Não requer token JWT.")
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "201", description = "Usuário cadastrado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponse.class))),
@@ -66,7 +70,9 @@ public class UsuarioController {
                         @ApiResponse(responseCode = "409", description = "Conflito: já existe usuário cadastrado com este e-mail")
         })
         public ResponseEntity<UsuarioResponse> criar(@RequestBody @Valid CriarUsuarioRequest request) {
+                log.info("Recebida requisição para cadastrar usuário com email='{}' e nome='{}'", request.email(), request.nome());
                 UsuarioResponse response = criarUsuarioUseCase.executar(request);
+                log.info("Usuário cadastrado com sucesso. ID gerado: {}", response.id());
                 URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                                 .path("/{id}")
                                 .buildAndExpand(response.id())
@@ -83,6 +89,7 @@ public class UsuarioController {
         })
         public ResponseEntity<UsuarioResponse> buscarPorId(
                         @Parameter(description = "UUID do usuário", example = "c7a8b84d-2a3b-41f6-b788-b73ea6ff9185") @PathVariable UUID id) {
+                log.info("Buscando dados do usuário por ID: {}", id);
                 return ResponseEntity.ok(buscarUsuarioPorIdUseCase.executar(id));
         }
 
@@ -93,6 +100,7 @@ public class UsuarioController {
                         @ApiResponse(responseCode = "401", description = "Não autenticado ou token JWT inválido/expirado")
         })
         public ResponseEntity<List<UsuarioResponse>> listarTodos() {
+                log.info("Listando todos os usuários cadastrados");
                 return ResponseEntity.ok(listarUsuariosUseCase.executar());
         }
 
@@ -108,7 +116,10 @@ public class UsuarioController {
         public ResponseEntity<UsuarioResponse> atualizar(
                         @Parameter(description = "UUID do usuário a ser atualizado", example = "c7a8b84d-2a3b-41f6-b788-b73ea6ff9185") @PathVariable UUID id,
                         @RequestBody @Valid AtualizarUsuarioRequest request) {
-                return ResponseEntity.ok(atualizarUsuarioUseCase.executar(id, request));
+                log.info("Recebida requisição para atualizar usuário ID: {}", id);
+                UsuarioResponse response = atualizarUsuarioUseCase.executar(id, request);
+                log.info("Usuário ID: {} atualizado com sucesso", id);
+                return ResponseEntity.ok(response);
         }
 
         @DeleteMapping("/{id}")
@@ -120,7 +131,9 @@ public class UsuarioController {
         })
         public ResponseEntity<Void> deletar(
                         @Parameter(description = "UUID do usuário a ser excluído", example = "c7a8b84d-2a3b-41f6-b788-b73ea6ff9185") @PathVariable UUID id) {
+                log.info("Recebida requisição para deletar usuário ID: {}", id);
                 deletarUsuarioUseCase.executar(id);
+                log.info("Usuário ID: {} deletado com sucesso", id);
                 return ResponseEntity.noContent().build();
         }
 }

@@ -1,10 +1,14 @@
 package io.github.tinhascode.essarota.infrastructure.web.exception;
 
+import io.github.tinhascode.essarota.domain.exception.AcessoNegadoAoTrajetoException;
 import io.github.tinhascode.essarota.domain.exception.CredenciaisInvalidasException;
 import io.github.tinhascode.essarota.domain.exception.DomainException;
 import io.github.tinhascode.essarota.domain.exception.EmailJaCadastradoException;
+import io.github.tinhascode.essarota.domain.exception.TrajetoNaoEncontradoException;
 import io.github.tinhascode.essarota.domain.exception.UsuarioNaoEncontradoException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,10 +25,13 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+        private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
         @ExceptionHandler(UsuarioNaoEncontradoException.class)
         public ResponseEntity<ErrorResponse> handleUsuarioNaoEncontrado(
                         UsuarioNaoEncontradoException ex,
                         HttpServletRequest request) {
+                log.warn("Usuário não encontrado [{}]: {}", request.getRequestURI(), ex.getMessage());
                 ErrorResponse error = new ErrorResponse(
                                 Instant.now(),
                                 HttpStatus.NOT_FOUND.value(),
@@ -35,10 +42,41 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
 
+        @ExceptionHandler(TrajetoNaoEncontradoException.class)
+        public ResponseEntity<ErrorResponse> handleTrajetoNaoEncontrado(
+                        TrajetoNaoEncontradoException ex,
+                        HttpServletRequest request) {
+                log.warn("Trajeto não encontrado [{}]: {}", request.getRequestURI(), ex.getMessage());
+                ErrorResponse error = new ErrorResponse(
+                                Instant.now(),
+                                HttpStatus.NOT_FOUND.value(),
+                                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+
+        @ExceptionHandler(AcessoNegadoAoTrajetoException.class)
+        public ResponseEntity<ErrorResponse> handleAcessoNegadoAoTrajeto(
+                        AcessoNegadoAoTrajetoException ex,
+                        HttpServletRequest request) {
+                log.warn("Acesso negado ao trajeto [{}]: {}", request.getRequestURI(), ex.getMessage());
+                ErrorResponse error = new ErrorResponse(
+                                Instant.now(),
+                                HttpStatus.FORBIDDEN.value(),
+                                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        }
+
         @ExceptionHandler(CredenciaisInvalidasException.class)
         public ResponseEntity<ErrorResponse> handleCredenciaisInvalidas(
                         CredenciaisInvalidasException ex,
                         HttpServletRequest request) {
+                log.warn("Credenciais inválidas informadas [{}]: {}", request.getRequestURI(), ex.getMessage());
                 ErrorResponse error = new ErrorResponse(
                                 Instant.now(),
                                 HttpStatus.UNAUTHORIZED.value(),
@@ -53,6 +91,7 @@ public class GlobalExceptionHandler {
         public ResponseEntity<ErrorResponse> handleEmailJaCadastrado(
                         EmailJaCadastradoException ex,
                         HttpServletRequest request) {
+                log.warn("Conflito de e-mail já cadastrado [{}]: {}", request.getRequestURI(), ex.getMessage());
                 ErrorResponse error = new ErrorResponse(
                                 Instant.now(),
                                 HttpStatus.CONFLICT.value(),
@@ -67,6 +106,7 @@ public class GlobalExceptionHandler {
         public ResponseEntity<ErrorResponse> handleDomainException(
                         DomainException ex,
                         HttpServletRequest request) {
+                log.warn("Exceção de regra de negócio [{}]: {}", request.getRequestURI(), ex.getMessage());
                 ErrorResponse error = new ErrorResponse(
                                 Instant.now(),
                                 HttpStatus.BAD_REQUEST.value(),
@@ -85,6 +125,7 @@ public class GlobalExceptionHandler {
                 for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
                         fieldErrors.put(fieldError.getField(), fieldError.getDefaultMessage());
                 }
+                log.warn("Erro de validação de campos [{}]: {}", request.getRequestURI(), fieldErrors);
 
                 ErrorResponse error = new ErrorResponse(
                                 Instant.now(),
@@ -100,6 +141,7 @@ public class GlobalExceptionHandler {
         public ResponseEntity<ErrorResponse> handleAuthenticationException(
                         AuthenticationException ex,
                         HttpServletRequest request) {
+                log.warn("Falha de autenticação [{}]: {}", request.getRequestURI(), ex.getMessage());
                 ErrorResponse error = new ErrorResponse(
                                 Instant.now(),
                                 HttpStatus.UNAUTHORIZED.value(),
@@ -114,6 +156,7 @@ public class GlobalExceptionHandler {
         public ResponseEntity<ErrorResponse> handleAccessDeniedException(
                         AccessDeniedException ex,
                         HttpServletRequest request) {
+                log.warn("Acesso negado [{}]: {}", request.getRequestURI(), ex.getMessage());
                 ErrorResponse error = new ErrorResponse(
                                 Instant.now(),
                                 HttpStatus.FORBIDDEN.value(),
@@ -128,6 +171,7 @@ public class GlobalExceptionHandler {
         public ResponseEntity<ErrorResponse> handleGenericException(
                         Exception ex,
                         HttpServletRequest request) {
+                log.error("Erro interno não tratado [{}]: {}", request.getRequestURI(), ex.getMessage(), ex);
                 ErrorResponse error = new ErrorResponse(
                                 Instant.now(),
                                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
