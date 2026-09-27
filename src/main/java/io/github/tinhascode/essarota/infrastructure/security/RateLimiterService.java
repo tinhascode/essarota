@@ -57,7 +57,6 @@ public class RateLimiterService {
                 long segundosParaReset = 60 - ((agora.getEpochSecond() - bucket.janelaInicio.getEpochSecond()) % 60);
                 return new RateLimitResult(true, false, capacidadeMaxima, bucket.tokens, Math.max(1, segundosParaReset));
             } else {
-                // Limite estourado
                 int violacoes = violacoesPorIp.merge(ip, 1, (atual, incremento) -> atual + incremento);
                 log.warn("IP '{}' atingiu taxa máxima para chave '{}'. Violações acumuladas: {}", ip, chaveBucket, violacoes);
 

@@ -39,75 +39,75 @@ import java.util.UUID;
 @SecurityRequirement(name = "Bearer Authentication")
 public class TrajetoLinhaController {
 
-    private static final Logger log = LoggerFactory.getLogger(TrajetoLinhaController.class);
+        private static final Logger log = LoggerFactory.getLogger(TrajetoLinhaController.class);
 
-    private final AssociarLinhaTrajetoUseCase associarLinhaTrajetoUseCase;
-    private final ListarLinhasDoTrajetoUseCase listarLinhasDoTrajetoUseCase;
-    private final RemoverLinhaDoTrajetoUseCase removerLinhaDoTrajetoUseCase;
+        private final AssociarLinhaTrajetoUseCase associarLinhaTrajetoUseCase;
+        private final ListarLinhasDoTrajetoUseCase listarLinhasDoTrajetoUseCase;
+        private final RemoverLinhaDoTrajetoUseCase removerLinhaDoTrajetoUseCase;
 
-    public TrajetoLinhaController(
-            AssociarLinhaTrajetoUseCase associarLinhaTrajetoUseCase,
-            ListarLinhasDoTrajetoUseCase listarLinhasDoTrajetoUseCase,
-            RemoverLinhaDoTrajetoUseCase removerLinhaDoTrajetoUseCase
-    ) {
-        this.associarLinhaTrajetoUseCase = associarLinhaTrajetoUseCase;
-        this.listarLinhasDoTrajetoUseCase = listarLinhasDoTrajetoUseCase;
-        this.removerLinhaDoTrajetoUseCase = removerLinhaDoTrajetoUseCase;
-    }
+        public TrajetoLinhaController(
+                        AssociarLinhaTrajetoUseCase associarLinhaTrajetoUseCase,
+                        ListarLinhasDoTrajetoUseCase listarLinhasDoTrajetoUseCase,
+                        RemoverLinhaDoTrajetoUseCase removerLinhaDoTrajetoUseCase) {
+                this.associarLinhaTrajetoUseCase = associarLinhaTrajetoUseCase;
+                this.listarLinhasDoTrajetoUseCase = listarLinhasDoTrajetoUseCase;
+                this.removerLinhaDoTrajetoUseCase = removerLinhaDoTrajetoUseCase;
+        }
 
-    @PostMapping
-    @Operation(summary = "Associar linha ao trajeto", description = "Associa uma linha de transporte ao trajeto especificado, informando a ordem sequencial no percurso.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Linha associada com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TrajetoLinhaResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Dados da requisição inválidos"),
-            @ApiResponse(responseCode = "401", description = "Não autenticado ou token JWT inválido/expirado"),
-            @ApiResponse(responseCode = "403", description = "Acesso negado: o trajeto pertence a outro usuário"),
-            @ApiResponse(responseCode = "404", description = "Trajeto ou Linha não encontrados")
-    })
-    public ResponseEntity<TrajetoLinhaResponse> associarLinha(
-            @AuthenticationPrincipal Usuario usuarioAutenticado,
-            @Parameter(description = "UUID do trajeto", example = "d94b0d74-c089-4e78-9e45-9858f9a26312") @PathVariable UUID trajetoId,
-            @RequestBody @Valid AssociarLinhaTrajetoRequest request) {
-        log.info("Usuário ID '{}' associando linha ID '{}' ao trajeto ID '{}'",
-                usuarioAutenticado.getId(), request.linhaId(), trajetoId);
-        TrajetoLinhaResponse response = associarLinhaTrajetoUseCase.executar(trajetoId, usuarioAutenticado.getId(), request);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{linhaId}")
-                .buildAndExpand(response.linhaId())
-                .toUri();
-        return ResponseEntity.created(location).body(response);
-    }
+        @PostMapping
+        @Operation(summary = "Associar linha ao trajeto", description = "Associa uma linha de transporte ao trajeto especificado, informando a ordem sequencial no percurso.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "201", description = "Linha associada com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TrajetoLinhaResponse.class))),
+                        @ApiResponse(responseCode = "400", description = "Dados da requisição inválidos"),
+                        @ApiResponse(responseCode = "401", description = "Não autenticado ou token JWT inválido/expirado"),
+                        @ApiResponse(responseCode = "403", description = "Acesso negado: o trajeto pertence a outro usuário"),
+                        @ApiResponse(responseCode = "404", description = "Trajeto ou Linha não encontrados")
+        })
+        public ResponseEntity<TrajetoLinhaResponse> associarLinha(
+                        @AuthenticationPrincipal Usuario usuarioAutenticado,
+                        @Parameter(description = "UUID do trajeto", example = "d94b0d74-c089-4e78-9e45-9858f9a26312") @PathVariable UUID trajetoId,
+                        @RequestBody @Valid AssociarLinhaTrajetoRequest request) {
+                log.info("Usuário ID '{}' associando linha ID '{}' ao trajeto ID '{}'",
+                                usuarioAutenticado.getId(), request.linhaId(), trajetoId);
+                TrajetoLinhaResponse response = associarLinhaTrajetoUseCase.executar(trajetoId,
+                                usuarioAutenticado.getId(), request);
+                URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path("/{linhaId}")
+                                .buildAndExpand(response.linhaId())
+                                .toUri();
+                return ResponseEntity.created(location).body(response);
+        }
 
-    @GetMapping
-    @Operation(summary = "Listar linhas do trajeto", description = "Retorna todas as linhas associadas ao trajeto informado, ordenadas pela sequência do trajeto.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Linhas do trajeto retornadas com sucesso", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = TrajetoLinhaResponse.class)))),
-            @ApiResponse(responseCode = "401", description = "Não autenticado ou token JWT inválido/expirado"),
-            @ApiResponse(responseCode = "403", description = "Acesso negado: o trajeto pertence a outro usuário"),
-            @ApiResponse(responseCode = "404", description = "Trajeto não encontrado")
-    })
-    public ResponseEntity<List<TrajetoLinhaResponse>> listarLinhas(
-            @AuthenticationPrincipal Usuario usuarioAutenticado,
-            @Parameter(description = "UUID do trajeto", example = "d94b0d74-c089-4e78-9e45-9858f9a26312") @PathVariable UUID trajetoId) {
-        log.info("Usuário ID '{}' listando linhas do trajeto ID '{}'", usuarioAutenticado.getId(), trajetoId);
-        return ResponseEntity.ok(listarLinhasDoTrajetoUseCase.executar(trajetoId, usuarioAutenticado.getId()));
-    }
+        @GetMapping
+        @Operation(summary = "Listar linhas do trajeto", description = "Retorna todas as linhas associadas ao trajeto informado, ordenadas pela sequência do trajeto.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Linhas do trajeto retornadas com sucesso", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = TrajetoLinhaResponse.class)))),
+                        @ApiResponse(responseCode = "401", description = "Não autenticado ou token JWT inválido/expirado"),
+                        @ApiResponse(responseCode = "403", description = "Acesso negado: o trajeto pertence a outro usuário"),
+                        @ApiResponse(responseCode = "404", description = "Trajeto não encontrado")
+        })
+        public ResponseEntity<List<TrajetoLinhaResponse>> listarLinhas(
+                        @AuthenticationPrincipal Usuario usuarioAutenticado,
+                        @Parameter(description = "UUID do trajeto", example = "d94b0d74-c089-4e78-9e45-9858f9a26312") @PathVariable UUID trajetoId) {
+                log.info("Usuário ID '{}' listando linhas do trajeto ID '{}'", usuarioAutenticado.getId(), trajetoId);
+                return ResponseEntity.ok(listarLinhasDoTrajetoUseCase.executar(trajetoId, usuarioAutenticado.getId()));
+        }
 
-    @DeleteMapping("/{linhaId}")
-    @Operation(summary = "Desassociar linha do trajeto", description = "Remove a associação de uma linha específica do trajeto informado.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Linha desassociada com sucesso (sem corpo de retorno)"),
-            @ApiResponse(responseCode = "401", description = "Não autenticado ou token JWT inválido/expirado"),
-            @ApiResponse(responseCode = "403", description = "Acesso negado: o trajeto pertence a outro usuário"),
-            @ApiResponse(responseCode = "404", description = "Associação não encontrada")
-    })
-    public ResponseEntity<Void> removerLinha(
-            @AuthenticationPrincipal Usuario usuarioAutenticado,
-            @Parameter(description = "UUID do trajeto", example = "d94b0d74-c089-4e78-9e45-9858f9a26312") @PathVariable UUID trajetoId,
-            @Parameter(description = "UUID da linha", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") @PathVariable UUID linhaId) {
-        log.info("Usuário ID '{}' removendo linha ID '{}' do trajeto ID '{}'",
-                usuarioAutenticado.getId(), linhaId, trajetoId);
-        removerLinhaDoTrajetoUseCase.executar(trajetoId, linhaId, usuarioAutenticado.getId());
-        return ResponseEntity.noContent().build();
-    }
+        @DeleteMapping("/{linhaId}")
+        @Operation(summary = "Desassociar linha do trajeto", description = "Remove a associação de uma linha específica do trajeto informado.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "204", description = "Linha desassociada com sucesso (sem corpo de retorno)"),
+                        @ApiResponse(responseCode = "401", description = "Não autenticado ou token JWT inválido/expirado"),
+                        @ApiResponse(responseCode = "403", description = "Acesso negado: o trajeto pertence a outro usuário"),
+                        @ApiResponse(responseCode = "404", description = "Associação não encontrada")
+        })
+        public ResponseEntity<Void> removerLinha(
+                        @AuthenticationPrincipal Usuario usuarioAutenticado,
+                        @Parameter(description = "UUID do trajeto", example = "d94b0d74-c089-4e78-9e45-9858f9a26312") @PathVariable UUID trajetoId,
+                        @Parameter(description = "UUID da linha", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") @PathVariable UUID linhaId) {
+                log.info("Usuário ID '{}' removendo linha ID '{}' do trajeto ID '{}'",
+                                usuarioAutenticado.getId(), linhaId, trajetoId);
+                removerLinhaDoTrajetoUseCase.executar(trajetoId, linhaId, usuarioAutenticado.getId());
+                return ResponseEntity.noContent().build();
+        }
 }

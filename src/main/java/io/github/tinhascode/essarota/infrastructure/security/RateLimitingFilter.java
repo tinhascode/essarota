@@ -34,7 +34,6 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
         String uri = request.getRequestURI();
 
-        // Não aplicar rate limit a documentação Swagger e rotas internas do SpringDoc
         if (isRotaIsenta(uri)) {
             filterChain.doFilter(request, response);
             return;
@@ -60,11 +59,11 @@ public class RateLimitingFilter extends OncePerRequestFilter {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.getWriter().write("""
                         {
-                          "status": 403,
-                          "error": "Forbidden",
-                          "message": "Seu endereço de IP foi temporariamente bloqueado por excesso de requisições maliciosas ou abusivas. Tente novamente mais tarde.",
-                          "retryAfterSeconds": %d,
-                          "path": "%s"
+                            "status": 403,
+                            "error": "Forbidden",
+                            "message": "Seu endereço de IP foi temporariamente bloqueado por excesso de requisições maliciosas ou abusivas. Tente novamente mais tarde.",
+                            "retryAfterSeconds": %d,
+                            "path": "%s"
                         }
                         """.formatted(resultado.segundosParaReset(), uri));
             } else {
@@ -72,11 +71,11 @@ public class RateLimitingFilter extends OncePerRequestFilter {
                 response.setStatus(429);
                 response.getWriter().write("""
                         {
-                          "status": 429,
-                          "error": "Too Many Requests",
-                          "message": "Limite de taxa excedido. Por favor, aguarde antes de enviar novas requisições.",
-                          "retryAfterSeconds": %d,
-                          "path": "%s"
+                            "status": 429,
+                            "error": "Too Many Requests",
+                            "message": "Limite de taxa excedido. Por favor, aguarde antes de enviar novas requisições.",
+                            "retryAfterSeconds": %d,
+                            "path": "%s"
                         }
                         """.formatted(resultado.segundosParaReset(), uri));
             }

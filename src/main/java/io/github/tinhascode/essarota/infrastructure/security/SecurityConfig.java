@@ -27,104 +27,104 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final RateLimitingFilter rateLimitingFilter;
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final RateLimitingFilter rateLimitingFilter;
 
-    @Value("${app.cors.allowed-origins:http://localhost:8081,http://localhost:19000,http://localhost:19006,exp://*}")
-    private String allowedOrigins;
+        @Value("${app.cors.allowed-origins:http://localhost:8081,http://localhost:19000,http://localhost:19006,exp://*}")
+        private String allowedOrigins;
 
-    public SecurityConfig(
-            JwtAuthenticationFilter jwtAuthenticationFilter,
-            RateLimitingFilter rateLimitingFilter
-    ) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.rateLimitingFilter = rateLimitingFilter;
-    }
+        public SecurityConfig(
+                        JwtAuthenticationFilter jwtAuthenticationFilter,
+                        RateLimitingFilter rateLimitingFilter) {
+                this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+                this.rateLimitingFilter = rateLimitingFilter;
+        }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .headers(headers -> headers
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
-                        .contentTypeOptions(contentType -> {})
-                        .xssProtection(xss -> {})
-                        .httpStrictTransportSecurity(hsts -> hsts
-                                .includeSubDomains(true)
-                                .maxAgeInSeconds(31536000))
-                        .referrerPolicy(referrer -> referrer
-                                .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/v3/api-docs.yaml")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/usuarios").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-                        .anyRequest().authenticated())
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.getWriter().write("""
-                                    {
-                                      "status": 401,
-                                      "error": "Unauthorized",
-                                      "message": "Acesso negado. Token JWT ausente ou inválido.",
-                                      "path": "%s"
-                                    }
-                                    """.formatted(request.getRequestURI()));
-                        }))
-                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .headers(headers -> headers
+                                                .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+                                                .contentTypeOptions(contentType -> {
+                                                })
+                                                .xssProtection(xss -> {
+                                                })
+                                                .httpStrictTransportSecurity(hsts -> hsts
+                                                                .includeSubDomains(true)
+                                                                .maxAgeInSeconds(31536000))
+                                                .referrerPolicy(referrer -> referrer
+                                                                .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(
+                                                                "/swagger-ui/**",
+                                                                "/swagger-ui.html",
+                                                                "/v3/api-docs/**",
+                                                                "/v3/api-docs.yaml")
+                                                .permitAll()
+                                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/api/v1/usuarios").permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                                                .anyRequest().authenticated())
+                                .exceptionHandling(ex -> ex
+                                                .authenticationEntryPoint((request, response, authException) -> {
+                                                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                                                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                                        response.getWriter()
+                                                                        .write("""
+                                                                                        {
+                                                                                                "status": 401,
+                                                                                                "error": "Unauthorized",
+                                                                                                "message": "Acesso negado. Token JWT ausente ou inválido.",
+                                                                                                "path": "%s"
+                                                                                        }
+                                                                                        """
+                                                                                        .formatted(request
+                                                                                                        .getRequestURI()));
+                                                }))
+                                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration configuration = new CorsConfiguration();
 
-        List<String> origins = Arrays.stream(allowedOrigins.split(","))
-                .map(String::trim)
-                .toList();
+                List<String> origins = Arrays.stream(allowedOrigins.split(","))
+                                .map(String::trim)
+                                .toList();
+                configuration.setAllowedOriginPatterns(origins);
 
-        // Origens permitidas (Metro bundler Expo, Expo Go, portas comuns de dev React Native)
-        configuration.setAllowedOriginPatterns(origins);
+                configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+                configuration.setAllowedHeaders(List.of(
+                                "Authorization",
+                                "Content-Type",
+                                "Accept",
+                                "X-Requested-With",
+                                "Origin",
+                                "Access-Control-Request-Method",
+                                "Access-Control-Request-Headers"));
+                configuration.setExposedHeaders(List.of(
+                                "Authorization",
+                                "X-RateLimit-Limit",
+                                "X-RateLimit-Remaining",
+                                "X-RateLimit-Reset",
+                                "Retry-After"));
+                configuration.setAllowCredentials(true);
+                configuration.setMaxAge(3600L);
 
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of(
-                "Authorization",
-                "Content-Type",
-                "Accept",
-                "X-Requested-With",
-                "Origin",
-                "Access-Control-Request-Method",
-                "Access-Control-Request-Headers"
-        ));
-        configuration.setExposedHeaders(List.of(
-                "Authorization",
-                "X-RateLimit-Limit",
-                "X-RateLimit-Remaining",
-                "X-RateLimit-Reset",
-                "Retry-After"
-        ));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L); // 1 hora de cache preflight
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", configuration);
+                return source;
+        }
 }
