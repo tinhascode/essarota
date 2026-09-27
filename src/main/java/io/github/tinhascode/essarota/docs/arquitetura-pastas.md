@@ -100,6 +100,7 @@ src/main/java/io/github/tinhascode/essarota/
     ├── documentation-system.md          # Especificação técnica geral
     ├── arquitetura-pastas.md            # Este documento explicativo da arquitetura
     ├── casos-de-uso.md                  # Diagrama e especificação de casos de uso do backend
+    ├── seguranca-backend.md             # Arquitetura de segurança defensiva, CORS, Rate Limit e DDoS
     ├── swagger-url.md                   # URLs de acesso e instruções do Swagger UI
     └── essarota-postman-collection.json # Coleção de requisições pronta para importação no Postman
 ```
