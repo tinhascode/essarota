@@ -26,6 +26,11 @@ public class OpenApiConfig {
                                 ### Funcionalidades disponíveis:
                                 - **Autenticação**: Login com geração de Token JWT.
                                 - **Usuários**: CRUD completo de usuários com senhas criptografadas (BCrypt).
+                                - **Trajetos**: Cadastro, consulta e gestão de trajetos do usuário.
+                                - **Linhas**: Cadastro e gerenciamento de linhas de transporte (ônibus, trem, metrô).
+                                - **Trajetos - Linhas**: Associação e ordenação de linhas que compõem o percurso do trajeto.
+                                - **Alertas**: Registro e monitoramento de ocorrências e problemas nas linhas de transporte.
+                                - **Notificações**: Histórico e envio de notificações disparadas aos usuários por múltiplos canais (WhatsApp/Push).
                                 
                                 ### Instruções de Autenticação no Swagger:
                                 1. Crie um usuário no endpoint `POST /api/v1/usuarios` (rota pública).
