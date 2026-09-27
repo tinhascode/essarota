@@ -1,9 +1,13 @@
 package io.github.tinhascode.essarota.infrastructure.web.exception;
 
 import io.github.tinhascode.essarota.domain.exception.AcessoNegadoAoTrajetoException;
+import io.github.tinhascode.essarota.domain.exception.AlertaNaoEncontradoException;
 import io.github.tinhascode.essarota.domain.exception.CredenciaisInvalidasException;
 import io.github.tinhascode.essarota.domain.exception.DomainException;
 import io.github.tinhascode.essarota.domain.exception.EmailJaCadastradoException;
+import io.github.tinhascode.essarota.domain.exception.LinhaNaoEncontradaException;
+import io.github.tinhascode.essarota.domain.exception.NotificacaoNaoEncontradaException;
+import io.github.tinhascode.essarota.domain.exception.TrajetoLinhaNaoEncontradaException;
 import io.github.tinhascode.essarota.domain.exception.TrajetoNaoEncontradoException;
 import io.github.tinhascode.essarota.domain.exception.UsuarioNaoEncontradoException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,6 +51,66 @@ public class GlobalExceptionHandler {
                         TrajetoNaoEncontradoException ex,
                         HttpServletRequest request) {
                 log.warn("Trajeto não encontrado [{}]: {}", request.getRequestURI(), ex.getMessage());
+                ErrorResponse error = new ErrorResponse(
+                                Instant.now(),
+                                HttpStatus.NOT_FOUND.value(),
+                                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+
+        @ExceptionHandler(LinhaNaoEncontradaException.class)
+        public ResponseEntity<ErrorResponse> handleLinhaNaoEncontrada(
+                        LinhaNaoEncontradaException ex,
+                        HttpServletRequest request) {
+                log.warn("Linha não encontrada [{}]: {}", request.getRequestURI(), ex.getMessage());
+                ErrorResponse error = new ErrorResponse(
+                                Instant.now(),
+                                HttpStatus.NOT_FOUND.value(),
+                                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+
+        @ExceptionHandler(TrajetoLinhaNaoEncontradaException.class)
+        public ResponseEntity<ErrorResponse> handleTrajetoLinhaNaoEncontrada(
+                        TrajetoLinhaNaoEncontradaException ex,
+                        HttpServletRequest request) {
+                log.warn("Associação trajeto-linha não encontrada [{}]: {}", request.getRequestURI(), ex.getMessage());
+                ErrorResponse error = new ErrorResponse(
+                                Instant.now(),
+                                HttpStatus.NOT_FOUND.value(),
+                                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+
+        @ExceptionHandler(AlertaNaoEncontradoException.class)
+        public ResponseEntity<ErrorResponse> handleAlertaNaoEncontrado(
+                        AlertaNaoEncontradoException ex,
+                        HttpServletRequest request) {
+                log.warn("Alerta não encontrado [{}]: {}", request.getRequestURI(), ex.getMessage());
+                ErrorResponse error = new ErrorResponse(
+                                Instant.now(),
+                                HttpStatus.NOT_FOUND.value(),
+                                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+
+        @ExceptionHandler(NotificacaoNaoEncontradaException.class)
+        public ResponseEntity<ErrorResponse> handleNotificacaoNaoEncontrada(
+                        NotificacaoNaoEncontradaException ex,
+                        HttpServletRequest request) {
+                log.warn("Notificação não encontrada [{}]: {}", request.getRequestURI(), ex.getMessage());
                 ErrorResponse error = new ErrorResponse(
                                 Instant.now(),
                                 HttpStatus.NOT_FOUND.value(),
