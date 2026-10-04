@@ -87,3 +87,4 @@ hs_err_pid*
 replay_pid*
 plano-monitoramento-saude-linhas.md
 docs/
+.env
