@@ -82,7 +82,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"João da Silva\",\n  \"email\": \"joao.silva@email.com\",\n  \"senha\": \"senhaSegura123\",\n  \"telefoneWhatsapp\": \"+5511999998888\",\n  \"deviceToken\": \"fcm_token_device_abc123\"\n}"
+              "raw": "{\n  \"nome\": \"João da Silva\",\n  \"email\": \"joao.silva@email.com\",\n  \"senha\": \"senhaSegura123\",\n  \"telefoneWhatsapp\": \"+5511999998888\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/usuarios",
@@ -157,7 +157,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"João da Silva Atualizado\",\n  \"email\": \"joao.silva@email.com\",\n  \"senha\": \"novaSenhaSegura456\",\n  \"telefoneWhatsapp\": \"+5511988887777\",\n  \"deviceToken\": \"fcm_token_device_novo456\"\n}"
+              "raw": "{\n  \"nome\": \"João da Silva Atualizado\",\n  \"email\": \"joao.silva@email.com\",\n  \"senha\": \"novaSenhaSegura456\",\n  \"telefoneWhatsapp\": \"+5511988887777\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/usuarios/{{usuarioId}}",

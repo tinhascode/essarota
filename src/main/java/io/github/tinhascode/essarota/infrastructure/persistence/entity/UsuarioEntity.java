@@ -28,19 +28,15 @@ public class UsuarioEntity {
     @Column(name = "telefone_whatsapp", length = 20)
     private String telefoneWhatsapp;
 
-    @Column(name = "device_token", length = 255)
-    private String deviceToken;
-
     public UsuarioEntity() {
     }
 
-    public UsuarioEntity(UUID id, String nome, String email, String senha, String telefoneWhatsapp, String deviceToken) {
+    public UsuarioEntity(UUID id, String nome, String email, String senha, String telefoneWhatsapp) {
         this.id = id;
         this.nome = nome;
         this.email = email;
         this.senha = senha;
         this.telefoneWhatsapp = telefoneWhatsapp;
-        this.deviceToken = deviceToken;
     }
 
     public UUID getId() {
@@ -81,14 +77,6 @@ public class UsuarioEntity {
 
     public void setTelefoneWhatsapp(String telefoneWhatsapp) {
         this.telefoneWhatsapp = telefoneWhatsapp;
-    }
-
-    public String getDeviceToken() {
-        return deviceToken;
-    }
-
-    public void setDeviceToken(String deviceToken) {
-        this.deviceToken = deviceToken;
     }
 
     @Override

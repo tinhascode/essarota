@@ -15,9 +15,8 @@ public class Usuario {
     private String email;
     private String senha;
     private String telefoneWhatsapp;
-    private String deviceToken;
 
-    public Usuario(UUID id, String nome, String email, String senha, String telefoneWhatsapp, String deviceToken) {
+    public Usuario(UUID id, String nome, String email, String senha, String telefoneWhatsapp) {
         validarNome(nome);
         validarEmail(email);
         validarSenha(senha);
@@ -26,20 +25,18 @@ public class Usuario {
         this.email = email.trim().toLowerCase();
         this.senha = senha;
         this.telefoneWhatsapp = normalizar(telefoneWhatsapp);
-        this.deviceToken = normalizar(deviceToken);
     }
 
-    public static Usuario criar(String nome, String email, String senha, String telefoneWhatsapp, String deviceToken) {
-        return new Usuario(UUID.randomUUID(), nome, email, senha, telefoneWhatsapp, deviceToken);
+    public static Usuario criar(String nome, String email, String senha, String telefoneWhatsapp) {
+        return new Usuario(UUID.randomUUID(), nome, email, senha, telefoneWhatsapp);
     }
 
-    public void atualizar(String novoNome, String novoEmail, String novoTelefoneWhatsapp, String novoDeviceToken) {
+    public void atualizar(String novoNome, String novoEmail, String novoTelefoneWhatsapp) {
         validarNome(novoNome);
         validarEmail(novoEmail);
         this.nome = novoNome.trim();
         this.email = novoEmail.trim().toLowerCase();
         this.telefoneWhatsapp = normalizar(novoTelefoneWhatsapp);
-        this.deviceToken = normalizar(novoDeviceToken);
     }
 
     public void atualizarSenha(String novaSenha) {
@@ -93,10 +90,6 @@ public class Usuario {
 
     public String getTelefoneWhatsapp() {
         return telefoneWhatsapp;
-    }
-
-    public String getDeviceToken() {
-        return deviceToken;
     }
 
     @Override

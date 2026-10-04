@@ -108,7 +108,6 @@ erDiagram
     string email UK
     string senha
     string telefone_whatsapp
-    string device_token
   }
 
   TRAJETO {

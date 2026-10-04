@@ -27,9 +27,6 @@ public record AtualizarUsuarioRequest(
                 regexp = "^$|^\\+?[1-9]\\d{8,14}$",
                 message = "Formato de telefone/whatsapp inválido. Ex: +5511999999999"
         )
-        String telefoneWhatsapp,
-
-        @Schema(description = "Token do dispositivo atualizado", example = "fcm_token_device_novo456")
-        String deviceToken
+        String telefoneWhatsapp
 ) {
 }

@@ -16,9 +16,6 @@ public record UsuarioResponse(
         String email,
 
         @Schema(description = "Telefone para WhatsApp", example = "+5511999998888")
-        String telefoneWhatsapp,
-
-        @Schema(description = "Token do dispositivo móvel para notificações push", example = "fcm_token_device_abc123")
-        String deviceToken
+        String telefoneWhatsapp
 ) {
 }

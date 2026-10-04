@@ -47,8 +47,7 @@ public class CriarUsuarioUseCase {
                 request.nome(),
                 request.email(),
                 senhaCriptografada,
-                request.telefoneWhatsapp(),
-                request.deviceToken()
+                request.telefoneWhatsapp()
         );
 
         Usuario salvo = usuarioRepository.salvar(usuario);

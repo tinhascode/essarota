@@ -28,9 +28,6 @@ public record CriarUsuarioRequest(
                 regexp = "^$|^\\+?[1-9]\\d{8,14}$",
                 message = "Formato de telefone/whatsapp inválido. Ex: +5511999999999"
         )
-        String telefoneWhatsapp,
-
-        @Schema(description = "Token do dispositivo (FCM) para push notifications (opcional)", example = "fcm_token_device_abc123")
-        String deviceToken
+        String telefoneWhatsapp
 ) {
 }

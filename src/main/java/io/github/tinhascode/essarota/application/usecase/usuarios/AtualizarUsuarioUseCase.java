@@ -53,7 +53,7 @@ public class AtualizarUsuarioUseCase {
             }
         }
 
-        usuario.atualizar(request.nome(), request.email(), request.telefoneWhatsapp(), request.deviceToken());
+        usuario.atualizar(request.nome(), request.email(), request.telefoneWhatsapp());
 
         if (request.senha() != null && !request.senha().isBlank()) {
             log.debug("Nova senha fornecida para o usuário ID: {}. Criptografando senha.", id);
